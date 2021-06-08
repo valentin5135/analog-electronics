@@ -1,0 +1,53 @@
+module  hsv_adjust(
+input  wire [9:0]      R,
+input  wire [9:0]      G,
+input  wire [9:0]      B,
+input  wire [63:0]     HSV,
+input  wire            CLK,
+
+output wire [9:0] 	  RO,
+output wire [9:0] 	  GO,
+output wire [9:0] 	  BO
+);
+
+wire [24:0] H, HC;
+wire [17:0] S, SC, V, VC;
+
+rgb2hsv RGB2HSV_(
+.R   ( R ),	   //in [9:0]
+.G   ( G ),	   //in [9:0]
+.B   ( B ),		   //in [9:0]
+.CLK ( CLK ),	
+
+.H   ( H ),	         //out [24:0]
+.S   ( S ),	         //out [17:0]
+.V   ( V ) 	         //out [17:0]	
+);
+// 7 CLK
+
+hsv_control HSV_CNTL_(	
+.H    ( H ),  // [24:0]
+.S    ( S ),  // [17:0]
+.V    ( V ),  // [17:0]
+.CNTL ( HSV ), // [63:0]
+.CLK  ( CLK ),
+
+.HO   ( HC ), // [24:0]
+.SO   ( SC ), // [17:0]
+.VO   ( VC )  // [17:0]
+);
+// 3 CLK
+
+hsv2rgb HSV2RGB_(
+.H   ( HC ),				//in [24:0]
+.S   ( SC ),				//in [17:0]
+.V   ( VC ),				//in [17:0]
+.CLK ( CLK ),	
+
+.R   ( RO ),		//out [9:0]
+.G   ( GO ),		//out [9:0]
+.B   ( BO )   		//out [9:0]
+);
+// 10 CLK
+
+endmodule
